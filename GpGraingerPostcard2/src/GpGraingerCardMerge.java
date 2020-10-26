@@ -219,7 +219,7 @@ public class GpGraingerCardMerge {
 		System.out.println("Loading Tab file - "+strTabFile);
 		while((nextlineTab=readerTab.readNext()) != null) {
 			tabCount++;
-			if(tabCount>1000) {
+			if(tabCount>20000) {
 				System.out.print(".");
 				tabCount=0;
 			}
@@ -282,6 +282,10 @@ public class GpGraingerCardMerge {
     			
     			//System.out.println(lettershopCount+" - Key: "+tmpKey2);
     			System.out.println(tmpKey2 + "(" + lettershopCount +")");
+    		
+    			if (lettershopCount==60) {
+    				System.out.println("STOP");
+    			}
     			
     			lettershopRecord = tmpValue2.split("\\|");
     			
@@ -308,9 +312,12 @@ public class GpGraingerCardMerge {
 
 			            // get image URL from Tab hashmap
 			            strTmpSku = productSkus[2];
-	    				localFileName = saveImageFile("http://"+hashmapTab.get(strTmpSku));
+	    				//localFileName = saveImageFile("http://"+hashmapTab.get(strTmpSku));
 	    				
-	    				if (localFileName.contains("NOTAVAIL")) {
+
+			            
+	    				if (hashmapTab.get(strTmpSku) == null || hashmapTab.get(strTmpSku).contains("NOTAVAIL")) {
+	    				//if (localFileName.contains("NOTAVAIL")) {
 	    					// do not load this product
 	    					skuNotAvail = skuNotAvail+strTmpSku+",";
 	    				} else {
@@ -338,15 +345,14 @@ public class GpGraingerCardMerge {
 	    					
 
 				            // get image URL from Tab hashmap
-				            strTmpSku = productSkus[2];
-				            
-				            if (strTmpSku == null) {
-				            	localFileName = "C:\\GP\\Grainger\\itemImages\\NOTAVAIL.jpg";
-				            } else {
-				            	localFileName = saveImageFile("http://"+hashmapTab.get(strTmpSku));
-				            	//String localFileName = saveImageFile("http://"+hashmapTab.get(strSku));
-				            	
-				            }	    				
+//				            strTmpSku = productSkus[2];
+//				            if (strTmpSku == null) {
+//				            	localFileName = "C:\\GP\\Grainger\\itemImages\\NOTAVAIL.jpg";
+//				            } else {
+//				            	localFileName = saveImageFile("http://"+hashmapTab.get(strTmpSku));
+//				            	//String localFileName = saveImageFile("http://"+hashmapTab.get(strSku));
+//				            	
+//				            }	    				
 				            
 				            // increment counter
 				            prodCount++;
@@ -359,7 +365,14 @@ public class GpGraingerCardMerge {
 	    		
 	    		}
 
-				if (strSku1.equals("")) {
+
+				if (!skuNotAvail.equals("")) {
+					System.out.println(strAccountNumber+" - Invalid SKU: "+skuNotAvail);
+		            errorBuffer.append(strAccountNumber+" - Invalid SKU: "+skuNotAvail);
+		            errorBuffer.append(System.getProperty("line.separator"));
+				}
+	    		
+	    		if (strSku1.equals("")) {
 					System.out.println(strAccountNumber+" - No SKUs found in Tab file: "+skuNotAvail);
 		            errorBuffer.append(strAccountNumber+" - No SKUs found in Tab file: "+skuNotAvail);
 		            errorBuffer.append(System.getProperty("line.separator"));
@@ -391,6 +404,7 @@ public class GpGraingerCardMerge {
             
         } catch (Exception e) {
         	System.out.println(e);
+        	e.printStackTrace();
         }		
 
 //		moveFile(strSkuListFile, myPath+"\\Archive\\"+timeStamp+"_"+skuFileList[0]);

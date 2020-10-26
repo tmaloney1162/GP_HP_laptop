@@ -32,11 +32,27 @@ public class GpGraingerCardGen {
 		//String fileName = args[1];
 		
 		String strInputFile =        "C:\\GP\\Grainger\\testFiles\\output2_presorted.csv";
+		String myPath="C:\\GP\\Grainger\\reorder";
+		
+		String presortFilePath = myPath+"\\presort";
 
-		File inputFile = new File(strInputFile);
-		new File("C:\\GP\\Grainger\\testFiles\\output2.csv"); 
-	    
-		CSVReader readerInput = new CSVReader(new FileReader(inputFile), ',');
+		File presortFiles = new File(presortFilePath); 
+	
+		String[] presortFileList;
+		presortFileList = presortFiles.list();
+		
+		
+		if (presortFileList.length != 1) {
+			System.out.println("Input Files error. Only 1 file may be in the presort directory \n");
+			System.out.println(presortFileList.length +" - " + presortFilePath);
+			System.exit (0);
+		}		
+		
+		String presortFileName = myPath + "\\presort\\" + presortFileList[0];
+		
+		
+		@SuppressWarnings("deprecation")
+		CSVReader readerInput = new CSVReader(new FileReader(presortFileName), ',');
 
 		new StringBuffer();
 		
@@ -67,7 +83,7 @@ public class GpGraingerCardGen {
             
             	recordCount++;
  
-    			System.out.println(recordCount);
+    			System.out.println(nextlineInput[8] + ": " +  recordCount);
   			
     			// record element
 	            Element record = doc.createElement("record");
