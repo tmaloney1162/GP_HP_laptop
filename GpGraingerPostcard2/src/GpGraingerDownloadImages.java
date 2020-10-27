@@ -6,11 +6,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-
-import com.google.common.collect.ArrayListMultimap;
 import com.opencsv.CSVReader;
 
 public class GpGraingerDownloadImages {
@@ -22,7 +21,10 @@ public class GpGraingerDownloadImages {
 		String presortFilePath = myPath+"\\presort";
 
 		File presortFiles = new File(presortFilePath); 
-	
+
+		ArrayList<String> imageArrayList = new ArrayList<String>();
+		
+		
 		String[] presortFileList;
 		presortFileList = presortFiles.list();
 		
@@ -42,15 +44,10 @@ public class GpGraingerDownloadImages {
 			imageDir.mkdir();
 		}
 		
-		
-		
 		@SuppressWarnings("deprecation")
 		CSVReader readerInput = new CSVReader(new FileReader(presortFileName), ',');
-
-		new StringBuffer();
 		
-		ArrayListMultimap.create();
-		
+		System.out.println("File: " + presortFileName);
 		String[] nextlineInput;
 
 		try {
@@ -61,23 +58,39 @@ public class GpGraingerDownloadImages {
             
             	recordCount++;
  
-    			System.out.println(nextlineInput[8] + ": " +  recordCount);
-  			
-	            saveImageFile("http://"+nextlineInput[20]);
-	            saveImageFile("http://"+nextlineInput[24]);
-	            saveImageFile("http://"+nextlineInput[28]);
+    			System.out.println("Gathering images for " + nextlineInput[8] + ": " +  recordCount);
 
+    			if (!imageArrayList.contains(nextlineInput[20])) {
+    				imageArrayList.add(nextlineInput[20]);
+    			} 
+
+    			if (!imageArrayList.contains(nextlineInput[24])) {
+    				imageArrayList.add(nextlineInput[24]);
+    			}
+    			if (!imageArrayList.contains(nextlineInput[28])) {
+    				imageArrayList.add(nextlineInput[28]);
+    			}
+    			
             }
            
     	    readerInput.close();
-            
+    	    
+    	    recordCount=0;
+    	    
+    	    Iterator<String> iter = imageArrayList.iterator();
+    	    while (iter.hasNext()) {
+    	    	System.out.print(recordCount + " - ");
+    	    	saveImageFile("http://"+iter.next());
+    	    	recordCount++;
+    	    }
+    	    
         } catch (Exception e) {
         	System.out.println(e);
 		}
       
 
         System.out.println("DONE");
-		
+        System.out.println("File: " + presortFileName);
 	}
 	
 
@@ -121,7 +134,7 @@ public class GpGraingerDownloadImages {
                 is.close();
                 os.close();
 
-                System.out.println(outFileName);
+                System.out.println("Downloading "+imageUrl+ " to " + outFileName);
                 return outFileName;
             	
             } catch (Exception e) {

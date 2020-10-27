@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -204,11 +203,8 @@ public class GpGraingerCardMerge {
 		
 		workbookSkuList.close();
 		workbookLettershop.close();
-		
 
 		treemapLettershop.putAll(hashmapLettershop); 
-		
-		
 		
 		// Load Tab File  -  hashmapTab
 		String tabLargeImageUrl, tabKey;
@@ -258,7 +254,7 @@ public class GpGraingerCardMerge {
             String[] lettershopRecord;
             String[] productSkus;
 
-            String tmpKey2, tmpValue2, strTmpSku, localFileName = "";
+            String tmpKey2, tmpValue2, strTmpSku;
             
     		// 0887051503
     		
@@ -360,11 +356,7 @@ public class GpGraingerCardMerge {
 	    				}
 	    			
 	    			}
-	    			//String.join("\t",strSku1,strImage1,strGisDesc1,strShortDesc1,strSku2,strImage2,strGisDesc2,strShortDesc2,strSku3,strImage3,strGisDesc3,strShortDesc3);
-
-	    		
 	    		}
-
 
 				if (!skuNotAvail.equals("")) {
 					System.out.println(strAccountNumber+" - Invalid SKU: "+skuNotAvail);
@@ -377,7 +369,6 @@ public class GpGraingerCardMerge {
 		            errorBuffer.append(strAccountNumber+" - No SKUs found in Tab file: "+skuNotAvail);
 		            errorBuffer.append(System.getProperty("line.separator"));
 				} else {
-					//csvData.add(new String[] {strAccountNumber,strMkeActivityId,strFullName,strCompanyName,strState,strTitleSlug,strZip,strZip4,strAddress1,strAddress2,strCity,strCsvLine});
 					csvData.add(new String[] {strAccountNumber,strMkeActivityId,strFullName,strCompanyName,strState,strTitleSlug,strZip,strZip4,strAddress1,strAddress2,strCity,strSku1,strImage1,strGisDesc1,strShortDesc1,strSku2,strImage2,strGisDesc2,strShortDesc2,strSku3,strImage3,strGisDesc3,strShortDesc3});
 				}
             

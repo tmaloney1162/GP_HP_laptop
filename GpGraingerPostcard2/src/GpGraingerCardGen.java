@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,25 +21,24 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.opencsv.CSVReader;
 
 public class GpGraingerCardGen {
 
+	static String myPath="C:\\GP\\Grainger\\reorder";
+	static String downloadImages = "N";
+	
 	public static void main(String[] args) throws IOException {
-		//String tmpIndex = args[0]; 
+		//downloadImages = args[0]; 
 		//String fileName = args[1];
 		
-		String strInputFile =        "C:\\GP\\Grainger\\testFiles\\output2_presorted.csv";
-		String myPath="C:\\GP\\Grainger\\reorder";
-		
+//		String strInputFile =        "C:\\GP\\Grainger\\testFiles\\output2_presorted.csv";
 		String presortFilePath = myPath+"\\presort";
 
 		File presortFiles = new File(presortFilePath); 
 	
 		String[] presortFileList;
 		presortFileList = presortFiles.list();
-		
 		
 		if (presortFileList.length != 1) {
 			System.out.println("Input Files error. Only 1 file may be in the presort directory \n");
@@ -49,15 +47,17 @@ public class GpGraingerCardGen {
 		}		
 		
 		String presortFileName = myPath + "\\presort\\" + presortFileList[0];
+
+		String imageDirName = myPath + "\\images";
+		File imageDir = new File(imageDirName);
 		
+		if (!imageDir.exists()) {
+			imageDir.mkdir();
+		}
 		
 		@SuppressWarnings("deprecation")
 		CSVReader readerInput = new CSVReader(new FileReader(presortFileName), ',');
-
-		new StringBuffer();
-		
-		ArrayListMultimap.create();
-		
+	
 		String[] nextlineInput;
 
 
@@ -173,7 +173,9 @@ public class GpGraingerCardGen {
 	            
 	            Element image1 = doc.createElement("image1");
 	            image1.appendChild(doc.createTextNode(saveImageFile("http://"+nextlineInput[20])));
+	            image1.setAttribute("url", nextlineInput[20]);
 	            record.appendChild(image1);
+	            
 	            
 	            Element gisdesc1 = doc.createElement("gisdesc1");
 	            gisdesc1.appendChild(doc.createTextNode(nextlineInput[21]));
@@ -189,6 +191,7 @@ public class GpGraingerCardGen {
 	            
 	            Element image2 = doc.createElement("image2");
 	            image2.appendChild(doc.createTextNode(saveImageFile("http://"+nextlineInput[24])));
+	            image2.setAttribute("url", nextlineInput[24]);
 	            record.appendChild(image2);
 	            
 	            Element gisdesc2 = doc.createElement("gisdesc2");
@@ -205,6 +208,7 @@ public class GpGraingerCardGen {
 	            
 	            Element image3 = doc.createElement("image3");
 	            image3.appendChild(doc.createTextNode(saveImageFile("http://"+nextlineInput[28])));
+	            image3.setAttribute("url", nextlineInput[28]);
 	            record.appendChild(image3);
 	            
 	            Element gisdesc3 = doc.createElement("gisdesc3");
@@ -263,19 +267,23 @@ public class GpGraingerCardGen {
         } else {
             try {
             	//System.out.println("imageUrl: "+imageUrl);
-            	String outFileName = "C:\\GP\\Grainger\\itemImages\\" + imageName + ".jpg";
-                final InputStream is = urlConnection.getInputStream();
-                final OutputStream os = new FileOutputStream(outFileName);
+//            	String outFileName = "C:\\GP\\Grainger\\itemImages\\" + imageName + ".jpg";
+            	String outFileName = myPath+"\\images\\" + imageName + ".jpg";
+            	
+            	if (downloadImages.equals("Y")) {
+                    final InputStream is = urlConnection.getInputStream();
+                    final OutputStream os = new FileOutputStream(outFileName);
 
-                byte[] b = new byte[2048];
-                int length;
+                    byte[] b = new byte[2048];
+                    int length;
 
-                while ((length = is.read(b)) != -1) {
-                    os.write(b, 0, length);
-                }
+                    while ((length = is.read(b)) != -1) {
+                        os.write(b, 0, length);
+                    }
 
-                is.close();
-                os.close();
+                    is.close();
+                    os.close();
+            	}
 
                 //System.out.println(outFileName);
                 return outFileName;
