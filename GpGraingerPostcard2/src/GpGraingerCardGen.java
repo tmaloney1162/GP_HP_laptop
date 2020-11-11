@@ -1,9 +1,6 @@
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -30,7 +27,7 @@ public class GpGraingerCardGen {
 	
 	public static void main(String[] args) throws IOException {
 		//downloadImages = args[0]; 
-		//String fileName = args[1];
+		String fileIdentifier = args[0];
 		
 //		String strInputFile =        "C:\\GP\\Grainger\\testFiles\\output2_presorted.csv";
 		String presortFilePath = myPath+"\\presort";
@@ -42,8 +39,8 @@ public class GpGraingerCardGen {
 		
 		if (presortFileList.length != 1) {
 			System.out.println("Input Files error. Only 1 file may be in the presort directory \n");
-			System.out.println(presortFileList.length +" - " + presortFilePath);
-			System.exit (0);
+			System.out.println(presortFileList.length +" Files in " + presortFilePath + " directory");
+			System.exit(1);
 		}		
 		
 		String presortFileName = myPath + "\\presort\\" + presortFileList[0];
@@ -225,9 +222,10 @@ public class GpGraingerCardGen {
            
             }
 
-           
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File("C:\\GP\\Grainger\\testFiles\\records2.xml"));
+            // StreamResult result = new StreamResult(new File("C:\\GP\\Grainger\\testFiles\\records2.xml"));
+            //StreamResult result = new StreamResult(new File("C:\\GP\\Grainger\\testFiles\\"+fileIdentifier+"_records.xml"));
+            StreamResult result = new StreamResult(new File(myPath+"\\fo\\"+fileIdentifier+"_records.xml"));
             transformer.transform(source, result);
    	    
     	    readerInput.close();
@@ -269,7 +267,11 @@ public class GpGraingerCardGen {
             	//System.out.println("imageUrl: "+imageUrl);
 //            	String outFileName = "C:\\GP\\Grainger\\itemImages\\" + imageName + ".jpg";
             	String outFileName = myPath+"\\images\\" + imageName + ".jpg";
+     
             	
+// no longer downloading images here. It is a separate program            	
+
+/*            	
             	if (downloadImages.equals("Y")) {
                     final InputStream is = urlConnection.getInputStream();
                     final OutputStream os = new FileOutputStream(outFileName);
@@ -285,8 +287,10 @@ public class GpGraingerCardGen {
                     os.close();
             	}
 
-                //System.out.println(outFileName);
-                return outFileName;
+*/                
+            	
+            	//System.out.println(outFileName);
+            	return outFileName;
             	
             } catch (Exception e) {
             	System.out.println("Error Code: " +urlConnection.getErrorStream());
