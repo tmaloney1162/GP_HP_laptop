@@ -1,15 +1,9 @@
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,9 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -46,10 +37,11 @@ import com.opencsv.CSVWriter;
 
 
 public class GpGraingerCardMerge {
-	
+
+	static String myPath="C:\\GP\\Grainger\\reorder";
+
 	public static void main(String[] args) throws IOException {
-		//String tmpIndex = args[0]; 
-		//String fileName = args[1];
+		String fileIdentifier = args[0];
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd_HH.mm.ss");  
 		LocalDateTime now = LocalDateTime.now();  
@@ -57,8 +49,6 @@ public class GpGraingerCardMerge {
 		String timeStamp = dtf.format(now);
 		System.out.println(timeStamp);
 		   
-		System.out.println("EEE");
-		String myPath="C:\\GP\\Grainger\\reorder";
 		String[] skuFileList;
 		String[] extractFileList;
 		String[] tabFileList;
@@ -71,15 +61,9 @@ public class GpGraingerCardMerge {
 		File skuFiles = new File(fullSkuFilePath); 
 		File tabFiles = new File(fullTabFilePath); 
 		
-	
-		
 		skuFileList = skuFiles.list();
 		extractFileList = extractFiles.list();
 		tabFileList = tabFiles.list();
-
-//		String xxx = Files.list(Paths.get(fullSkuFilePath)).filter(Files::isRegularFile).iterator().toString();
-//		System.out.println(xxx);
-
 		
 		if (skuFileList.length != 1 || extractFileList.length != 1 || tabFileList.length != 1) {
 			System.out.println("Input Files error. Only 1 file may be in the input directories \n");
@@ -94,20 +78,17 @@ public class GpGraingerCardMerge {
 		String strSkuListFile    = fullSkuFilePath+"\\"+skuFileList[0];
 		String strLettershopFile = fullExtractFilePath +"\\"+extractFileList[0];
 		String strTabFile        = fullTabFilePath+"\\"+tabFileList[0];
-		String strOutputFile     = myPath+"\\output\\"+timeStamp+"_output.csv";
+		String strOutputFile     = myPath+"\\output\\"+fileIdentifier+"_merged_"+timeStamp+".csv";
 		
 		File fileSkuList =    new File(strSkuListFile);
 		File fileLetterShop = new File(strLettershopFile);
       	File tabFileName =    new File(strTabFile);
-		//File file =           new File("C:\\GP\\Grainger\\testFiles\\output2.csv"); 
-		File fileOutput =           new File(strOutputFile); 
-	   
+		File fileOutput =     new File(strOutputFile); 
 		
 		@SuppressWarnings("deprecation")
 		CSVReader readerTab = new CSVReader(new FileReader(tabFileName), '\t');
 
 		StringBuffer errorBuffer = new StringBuffer();
-		
 		
 		ListMultimap<String, String> multimapSkuList = ArrayListMultimap.create();
 		Map<String, String> hashmapLettershop = new HashMap<>();
@@ -151,15 +132,11 @@ public class GpGraingerCardMerge {
 				strSkuGisDesc = getCellValue(12, r);
 				
 				allSkuFields = String.join("|", strSkuAccount,strSkuContact,strSkuSkuId,strSkuShortDesc,strSkuGisDesc);
-				
 				multimapSkuList.put(strSkuAccount, allSkuFields);
-				//multimapLettershop.put(strSkuAccount, allSkuFields);
 
-				//System.out.println(allSkuFields);
 			} catch (IOException e) {
 	        	System.out.println(e);
 			}
-			
 		}
 		
 		// Load Lettershop File   -  hashmapLettershop		
@@ -190,10 +167,6 @@ public class GpGraingerCardMerge {
 				strLetterZip4 = getCellValue(20, r);
 
 				allLetterFields = String.join("|", strLetterAcctNum, strLetterContact, strLetterMktActivityId, strLetterActivityId, strLetterFullName, strLetterTitleSlug, strLetterCompany, strLetterAddress1, strLetterAddress2, strLetterCity, strLetterState, strLetterZip, strLetterZip4,"END");
-
-				// System.out.println(allLetterFields);
-				// add to hashmap to get list of acct numbs
-				//hashmapLettershop.put(strLetterAcctNum, allLetterFields);
 				
 				hashmapLettershop.put(strLetterAcctNum, allLetterFields);
 
@@ -204,11 +177,8 @@ public class GpGraingerCardMerge {
 		
 		workbookSkuList.close();
 		workbookLettershop.close();
-		
 
 		treemapLettershop.putAll(hashmapLettershop); 
-		
-		
 		
 		// Load Tab File  -  hashmapTab
 		String tabLargeImageUrl, tabKey;
@@ -219,14 +189,12 @@ public class GpGraingerCardMerge {
 		System.out.println("Loading Tab file - "+strTabFile);
 		while((nextlineTab=readerTab.readNext()) != null) {
 			tabCount++;
-			if(tabCount>1000) {
+			if(tabCount>20000) {
 				System.out.print(".");
 				tabCount=0;
 			}
 
 			if (nextlineTab[0].toString().equals("## SC") || nextlineTab[0].toString().equals("Key")) {
-				// skip
-			// } else if (nextlineTab[4].toString().contains("NOTAVAIL")){
 				// skip
 			} else {
 				tabKey= nextlineTab[0].toString();
@@ -235,9 +203,7 @@ public class GpGraingerCardMerge {
 			}
 		}
 		System.out.println("\nTab file loaded");
-		
 
-		//Iterator iter = hashmapLettershop.entrySet().iterator();
 		Iterator<?> iter = treemapLettershop.entrySet().iterator();
         try {
 			
@@ -258,10 +224,8 @@ public class GpGraingerCardMerge {
             String[] lettershopRecord;
             String[] productSkus;
 
-            String tmpKey2, tmpValue2, strTmpSku, localFileName = "";
+            String tmpKey2, tmpValue2, strTmpSku;
             
-    		// 0887051503
-    		
             int lettershopCount = 0;
 
             String strAccountNumber, strAddress1, strAddress2, strCity, strCompanyName, strFullName, strMkeActivityId, strState, strTitleSlug, strZip, strZip4;
@@ -280,8 +244,11 @@ public class GpGraingerCardMerge {
     			
     			tmpValue2 = (String) entry.getValue();
     			
-    			//System.out.println(lettershopCount+" - Key: "+tmpKey2);
     			System.out.println(tmpKey2 + "(" + lettershopCount +")");
+    		
+    			if (lettershopCount==60) {
+    				System.out.println("STOP");
+    			}
     			
     			lettershopRecord = tmpValue2.split("\\|");
     			
@@ -308,10 +275,8 @@ public class GpGraingerCardMerge {
 
 			            // get image URL from Tab hashmap
 			            strTmpSku = productSkus[2];
-	    				localFileName = saveImageFile("http://"+hashmapTab.get(strTmpSku));
-	    				
-	    				if (localFileName.contains("NOTAVAIL")) {
-	    					// do not load this product
+			            
+	    				if (hashmapTab.get(strTmpSku) == null || hashmapTab.get(strTmpSku).contains("NOTAVAIL")) {
 	    					skuNotAvail = skuNotAvail+strTmpSku+",";
 	    				} else {
 	    					
@@ -336,42 +301,32 @@ public class GpGraingerCardMerge {
 	    						break;
 	    					}
 	    					
-
-				            // get image URL from Tab hashmap
-				            strTmpSku = productSkus[2];
-				            
-				            if (strTmpSku == null) {
-				            	localFileName = "C:\\GP\\Grainger\\itemImages\\NOTAVAIL.jpg";
-				            } else {
-				            	localFileName = saveImageFile("http://"+hashmapTab.get(strTmpSku));
-				            	//String localFileName = saveImageFile("http://"+hashmapTab.get(strSku));
-				            	
-				            }	    				
-				            
 				            // increment counter
 				            prodCount++;
 				            
 	    				}
 	    			
 	    			}
-	    			//String.join("\t",strSku1,strImage1,strGisDesc1,strShortDesc1,strSku2,strImage2,strGisDesc2,strShortDesc2,strSku3,strImage3,strGisDesc3,strShortDesc3);
-
-	    		
 	    		}
 
-				if (strSku1.equals("")) {
+				if (!skuNotAvail.equals("")) {
+					System.out.println(strAccountNumber+" - Invalid SKU: "+skuNotAvail);
+		            errorBuffer.append(strAccountNumber+" - Invalid SKU: "+skuNotAvail);
+		            errorBuffer.append(System.getProperty("line.separator"));
+				}
+	    		
+	    		if (strSku1.equals("")) {
 					System.out.println(strAccountNumber+" - No SKUs found in Tab file: "+skuNotAvail);
 		            errorBuffer.append(strAccountNumber+" - No SKUs found in Tab file: "+skuNotAvail);
 		            errorBuffer.append(System.getProperty("line.separator"));
 				} else {
-					//csvData.add(new String[] {strAccountNumber,strMkeActivityId,strFullName,strCompanyName,strState,strTitleSlug,strZip,strZip4,strAddress1,strAddress2,strCity,strCsvLine});
 					csvData.add(new String[] {strAccountNumber,strMkeActivityId,strFullName,strCompanyName,strState,strTitleSlug,strZip,strZip4,strAddress1,strAddress2,strCity,strSku1,strImage1,strGisDesc1,strShortDesc1,strSku2,strImage2,strGisDesc2,strShortDesc2,strSku3,strImage3,strGisDesc3,strShortDesc3});
 				}
             
             }
 
  
-            BufferedWriter bwr = new BufferedWriter(new FileWriter(new File("C:\\GP\\Grainger\\testFiles\\errors.txt")));
+            BufferedWriter bwr = new BufferedWriter(new FileWriter(new File(myPath+"\\"+fileIdentifier+"_errors.txt")));
             
             //write contents of StringBuffer to a file
             bwr.write(errorBuffer.toString());
@@ -391,13 +346,19 @@ public class GpGraingerCardMerge {
             
         } catch (Exception e) {
         	System.out.println(e);
+        	e.printStackTrace();
         }		
 
-//		moveFile(strSkuListFile, myPath+"\\Archive\\"+timeStamp+"_"+skuFileList[0]);
-//		moveFile(strLettershopFile, myPath+"\\Archive\\"+timeStamp+"_"+skuFileList[0]);
-//		moveFile(strTabFile, myPath+"\\Archive\\"+timeStamp+"_"+skuFileList[0]);
+        
+        
+        System.out.println("Moving files...");
+        
+        
+		moveFile(strSkuListFile, myPath+"\\Archive\\"+timeStamp+"_"+skuFileList[0]);
+		moveFile(strLettershopFile, myPath+"\\Archive\\"+timeStamp+"_"+extractFileList[0]);
 
-        System.out.println("DONE");
+
+        System.out.println("Process complete. Merged file: "+ strOutputFile);
 		
 	}
 	
@@ -418,59 +379,6 @@ public class GpGraingerCardMerge {
      }
 	
 	
-
-	public static String saveImageFile(String imageUrl) throws IOException {
-    	
-        URL url = new URL(imageUrl);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-        urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
-        urlConnection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-        urlConnection.setInstanceFollowRedirects(true);
-
-        String patternSplit=".*\\/Grainger\\/(.*)\\?.*";	        
-        Pattern pSplit = Pattern.compile(patternSplit, Pattern.MULTILINE);
-
-        // Matcher refers to the actual text where the pattern will be found
-        Matcher mSplit = pSplit.matcher(imageUrl);
-        String imageName = null;
-        if (mSplit.find()) {
-            imageName = mSplit.group(1);
-        }
-
-        if (imageName == null) {
-        	return "C:\\GP\\Grainger\\itemImages\\NOTAVAIL.jpg";
-        } else {
-            try {
-            	//System.out.println("imageUrl: "+imageUrl);
-            	String outFileName = "C:\\GP\\Grainger\\itemImages\\" + imageName + ".jpg";
-                final InputStream is = urlConnection.getInputStream();
-                final OutputStream os = new FileOutputStream(outFileName);
-
-                byte[] b = new byte[2048];
-                int length;
-
-                while ((length = is.read(b)) != -1) {
-                    os.write(b, 0, length);
-                }
-
-                is.close();
-                os.close();
-
-                //System.out.println(outFileName);
-                return outFileName;
-            	
-            } catch (Exception e) {
-            	System.out.println("Error Code: " +urlConnection.getErrorStream());
-            	System.out.println(e);
-            	//e.printStackTrace();
-            	return "Error Code";
-            }        	
-        }
-
-
-     }    
-	
 	private static void moveFile(String src, String dest ) {
 	      Path result = null;
 	      try {
@@ -479,9 +387,9 @@ public class GpGraingerCardMerge {
 	         System.out.println("Exception while moving file: " + e.getMessage());
 	      }
 	      if(result != null) {
-	         System.out.println("File moved successfully.");
+	         System.out.println(src + " move successfully to the Archive folder.");
 	      }else{
-	         System.out.println("File movement failed.");
+	         System.out.println(src + " move failed. The file is still in the input folder.");
 	      }	
 	}
 

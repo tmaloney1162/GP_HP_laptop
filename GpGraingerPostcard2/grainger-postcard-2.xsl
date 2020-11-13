@@ -3,35 +3,41 @@
 	xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:svg="http://www.w3.org/2000/svg" version="1.0" xmlns:rx="http://www.renderx.com/XSL/Extensions">
 
 	<xsl:template match="/">
-		<xsl:processing-instruction name="xep-pdf-bleed">0.25in</xsl:processing-instruction>
-		<xsl:processing-instruction name="xep-pdf-bleed-mark-width">0pt</xsl:processing-instruction>
-		<xsl:processing-instruction name="xep-pdf-crop-offset">0.25in</xsl:processing-instruction>
-		<xsl:processing-instruction name="xep-pdf-crop-mark-width">0pt</xsl:processing-instruction>
+
+		<xsl:processing-instruction name="xep-pdf-bleed">0.25in 0.25in</xsl:processing-instruction>
+		<xsl:processing-instruction name="xep-pdf-crop-offset">0.25in 0.25in</xsl:processing-instruction>
+		<xsl:processing-instruction name="xep-pdf-crop-mark-width">1pt</xsl:processing-instruction>
+		<xsl:processing-instruction name="xep-pdf-bleed-mark-width">2pt</xsl:processing-instruction>
 
 
 <!-- 4C
+
+			<?xep-pdf-bleed 0.25in 0.25in?> 
+			<?xep-pdf-crop-offset 1in 1in?>
+			<?xep-pdf-crop-mark-width 1pt?>
+			<?xep-pdf-bleed-mark-width 2pt?>
+			
+
 		<xsl:processing-instruction name="xep-pdf-bleed">0.25in</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-bleed-mark-width">1pt</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-crop-offset">-0.25in</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-crop-mark-width">5pt</xsl:processing-instruction>
--->
 
-<!-- 4B
+
+4B
+
 		<xsl:processing-instruction name="xep-pdf-bleed">0.25in</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-bleed-mark-width">1pt</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-crop-offset">0.25in</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-crop-mark-width">5pt</xsl:processing-instruction>
--->
 
+4A
 
-<!-- 4A
 		<xsl:processing-instruction name="xep-pdf-bleed">0.25in</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-bleed-mark-width">1pt</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-crop-offset">0.25in</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-crop-mark-width">5pt</xsl:processing-instruction>
--->
 
-<!--
 		<xsl:processing-instruction name="xep-pdf-crop-offset">-0.25in</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-crop-mark-width">5pt</xsl:processing-instruction>
 		<xsl:processing-instruction name="xep-pdf-bleed">0.25in</xsl:processing-instruction>
@@ -64,7 +70,9 @@
 					<fo:page-sequence master-reference="back-page" force-page-count="no-force">
 						<fo:flow flow-name="xsl-region-body">
 
-				      <fo:block margin-top="0.25in" margin-left="0.25in">
+
+				      <fo:block margin-top="0in" margin-left="0in">
+
 								<xsl:call-template name="back"/>
 					    </fo:block>
 
@@ -79,7 +87,12 @@
 
 
 	<xsl:template name="front">
-		  <fo:block-container height="6in" margin-top="0.25in" 	margin-left="0.25in" background-image="url('C:\GP\Grainger\reorder\panelImages\MailPanel_6x9.pdf')" background-repeat="no-repeat">
+
+<!--
+		  <fo:block-container height="6.5in" margin-top="0in" 	margin-left="0in" background-image="url('C:\GP\Grainger\reorder\panelImages\MailPanel_6x9.pdf')" background-repeat="no-repeat">
+-->
+		  <fo:block-container height="6.5in" margin-top="-0.25in" 	margin-left="-0.25in" background-image="url('C:\GP\Grainger\reorder\panelImages\MailPanel_FullSize.pdf')" background-repeat="no-repeat">
+
 			  <fo:block font="8pt Arial" >
 			  	<fo:block margin-left="7.75in" margin-top="0.25in"><fo:external-graphic src="url('C:\GP\Grainger\reorder\panelImages\PRSRTMKTG.jpg')"/></fo:block>
 		      <fo:block font="10pt Arial" margin-left="5in" margin-top="1in">
@@ -105,8 +118,9 @@
 	
 	<xsl:template name="back">
 		
-		  <fo:block-container height="6in" background-image="url('C:\GP\Grainger\reorder\panelImages\BackPanel_6x9.pdf')" background-repeat="no-repeat">
-	      <fo:block font="10pt ArialMT" margin-left="0.75in" margin-right="0.75in" margin-top="1.25in">
+		  <fo:block-container height="6.5in" background-image="url('C:\GP\Grainger\reorder\panelImages\BackPanel_FullSize.pdf')" background-repeat="no-repeat">
+	      <fo:block font="10pt Arial" margin-left="0.75in" margin-right="0.75in" margin-top="1.25in">
+
 
 			    <fo:table font-size="10pt" >
 			        <fo:table-column column-width="2.25in"/>
